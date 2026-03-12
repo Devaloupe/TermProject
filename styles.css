@@ -1,0 +1,158 @@
+/* --- 1. BASE CANVAS STYLES --- */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #05000a;
+    overflow: hidden; 
+    height: 100vh;
+    width: 100vw;
+    font-family: sans-serif;
+    color: white;
+}
+
+/* --- 2. MUSIC NOTE STYLES --- */
+.note {
+    position: absolute;
+    top: -10vh; 
+    user-select: none; 
+    animation: fall linear forwards;
+    z-index: 1;
+}
+
+@keyframes fall {
+    0% { transform: translateY(0) rotate(-15deg); }
+    100% { transform: translateY(115vh) rotate(15deg); }
+}
+
+/* --- 3. SPLASH SCREEN & TITLE STYLES --- */
+#splash-container {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    display: flex; justify-content: center; align-items: center;
+    z-index: 10; 
+    pointer-events: none; 
+}
+
+#site-title {
+    font-size: 5rem;
+    margin: 0;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    transition: top 1.5s ease-in-out, font-size 1.5s ease-in-out, filter 0.5s ease-in-out;
+    
+    /* Forces the text to NEVER break onto a second line */
+    white-space: nowrap; 
+    
+    /* Invisible text filled by dynamic purple color */
+    background: linear-gradient(
+        to top, 
+        var(--fill-color, hsl(280, 100%, 10%)) var(--fill-percent), 
+        transparent var(--fill-percent)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; /* Guarantees invisibility */
+    background-clip: text;
+    color: transparent; 
+    
+    filter: drop-shadow(0 0 0px transparent);
+}
+
+/* Step 1 of the reveal (Lights up!) */
+#site-title.glow-active {
+    filter: drop-shadow(0 0 20px hsl(265, 100%, 60%)); 
+}
+
+/* Step 2 of the reveal: Moves to the top (keeps the glow) */
+#site-title.move-to-top {
+    top: 5%;
+    font-size: 3rem;
+    filter: drop-shadow(0 0 15px hsl(265, 100%, 60%));
+}
+
+/* --- ABSORPTION ANIMATION --- */
+.note.hit {
+    animation: absorb 0.4s ease-out forwards !important;
+}
+
+@keyframes absorb {
+    0% { opacity: 1; filter: brightness(1) blur(0px); }
+    40% { opacity: 1; filter: brightness(2) blur(2px) contrast(200%); }
+    100% { opacity: 0; filter: brightness(3) blur(6px); transform: scale(0); }
+}
+
+/* --- 4. MAIN CONTENT & LOGIN STYLES --- */
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1s ease;
+}
+
+.visible {
+    opacity: 1;
+    pointer-events: auto;
+    padding-top: 150px; 
+    text-align: center;
+    z-index: 5;
+    position: relative; 
+}
+
+/* --- THE NEW SLEEK LOGIN FORM --- */
+#login-form {
+    display: flex;
+    flex-direction: column; /* Stacks them vertically */
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+/* Glassy Input Boxes */
+#login-form input {
+    padding: 15px 20px;
+    font-size: 1.2rem;
+    width: 100%;
+    max-width: 320px;
+    border-radius: 8px; /* Modern, slightly rounded edges */
+    border: 2px solid hsl(265, 40%, 30%); /* Dim purple border */
+    background-color: rgba(255, 255, 255, 0.05); /* Translucent glassy background */
+    color: white;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box; 
+}
+
+#login-form input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Bright Violet Glow when typing */
+#login-form input:focus {
+    border-color: hsl(265, 100%, 60%);
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.5); /* Violet glow */
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Modern Gradient Button */
+#login-btn {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    width: 100%;
+    max-width: 320px;
+    border-radius: 8px;
+    border: none;
+    /* Deep purple to lighter violet gradient */
+    background: linear-gradient(45deg, hsl(265, 100%, 35%), hsl(265, 100%, 55%)); 
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    margin-top: 5px;
+}
+
+/* Button Hover Effect */
+#login-btn:hover {
+    transform: translateY(-3px); /* Lifts up slightly */
+    box-shadow: 0 8px 20px rgba(138, 43, 226, 0.6); /* Drops a glowing shadow */
+}
