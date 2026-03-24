@@ -56,11 +56,9 @@ function checkCollisions() {
             note.style.animationPlayState = 'paused';
             setTimeout(() => note.remove(), 400);
 
-            // Increase the fill percentage
             fillPercentage += increment;
             if (fillPercentage > 100) fillPercentage = 100;
             
-            // Starts at 10% (very dark) and scales up by 40 to hit exactly 50% (bright neon) at the end
             const currentLightness = 10 + (fillPercentage * 0.4);
             
             title.style.setProperty('--fill-percent', `${fillPercentage}%`);
@@ -95,12 +93,106 @@ function triggerSiteReveal() {
 
 setInterval(createNote, 150);
 
-// --- FORM HANDLING LOGIC ---
-// Prevent the form from refreshing the page when clicking "Log In"
+// --- TAB SWITCHING LOGIC ---
+function switchTab(tab) {
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const tabLogin = document.getElementById('tab-login');
+    const tabSignup = document.getElementById('tab-signup');
+
+    // Clear any messages when switching
+    document.getElementById('login-message').textContent = '';
+    document.getElementById('signup-message').textContent = '';
+
+    if (tab === 'login') {
+        loginForm.classList.remove('hidden-form');
+        signupForm.classList.add('hidden-form');
+        tabLogin.classList.add('active');
+        tabSignup.classList.remove('active');
+    } else {
+        signupForm.classList.remove('hidden-form');
+        loginForm.classList.add('hidden-form');
+        tabSignup.classList.add('active');
+        tabLogin.classList.remove('active');
+    }
+}
+
+// --- HELPER: Show message under form ---
+function showMessage(elementId, message, type) {
+    const el = document.getElementById(elementId);
+    el.textContent = message;
+    el.className = `form-message ${type}`; // 'error' or 'success'
+}
+
+// --- LOGIN LOGIC ---
 const loginForm = document.getElementById('login-form');
 if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault(); // Stops the page reload
-        console.log("Login button clicked! Ready to connect to backend.");
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value;
+
+        try {
+            const res = await fetch('http://localhost:3000/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                showMessage('login-message', '✓ Logged in! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'home.html'; // redirect after login
+                }, 1000);
+            } else {
+                showMessage('login-message', data.message || 'Login failed.', 'error');
+            }
+        } catch (err) {
+            showMessage('login-message', 'Could not connect to server.', 'error');
+        }
+    });
+}
+
+// --- SIGNUP LOGIC ---
+const signupForm = document.getElementById('signup-form');
+if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('signup-username').value.trim();
+        const password = document.getElementById('signup-password').value;
+        const confirm = document.getElementById('signup-confirm').value;
+
+        // Check passwords match before sending to server
+        if (password !== confirm) {
+            showMessage('signup-message', 'Passwords do not match.', 'error');
+            return;
+        }
+
+        try {
+            const res = await fetch('http://localhost:3000/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                showMessage('signup-message', '✓ Account created! You can now log in.', 'success');
+                setTimeout(() => {
+                    switchTab('login'); // Switch to login tab after signup
+                }, 1500);
+            } else {
+                showMessage('signup-message', data.message || 'Signup failed.', 'error');
+            }
+        } catch (err) {
+            showMessage('signup-message', 'Could not connect to server.', 'error');
+        }
     });
 }
